@@ -1,5 +1,5 @@
 # %% 
-from PhDParser import PhDParser
+from PhDParser import PhDParser, DisciplineParser
 import disciplines
 
 # %%
@@ -25,3 +25,7 @@ parser.genProjects(discipline=discipline, recent_only=recent_only, keywords=keyw
 # %%
 """ Save as .json file """
 if save_as_json: parser.saveRecentAsJson(output_path=json_output_path)
+
+# %%
+d = DisciplineParser()
+print(d.scrapeDisciplines())

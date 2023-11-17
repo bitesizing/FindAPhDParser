@@ -4,14 +4,40 @@ import json
 from bs4 import BeautifulSoup
 import disciplines
 
-class PhDParser():
+class Parser():
+    def __init__(self):
+        self.disciplines = disciplines.disciplines
+
+    def parseURL(self, url) -> BeautifulSoup:
+        """ Returns 'soup' object from a html page using requests and BeautifulSoup. 
+            url (str) : valid findaPhD url to parse
+            RETURNS BeautifulSoup : BeautifulSoup object used to parse data
+        """
+        return BeautifulSoup(requests.get(url).text, 'lxml')
+
+    def saveAsJson(self, contents:(list[dict]), file_path:str="json"):
+        """ Saves list of dictionaries as .json file. 
+            contents (list[dict]) : contents to save in .json file
+            file_path (str) : path to save, including filename. can be relative. defaults to json + the lowest integer unused by an existing 'json' file
+        """
+        if file_path == "json": 
+            i = 1
+            while True:
+                try: open(f"str{i}.json")
+                except FileNotFoundError: break
+                else: i+=1
+            file_path = f"str{i}.json"
+            
+        with open(file_path, 'w') as json_file:
+            json.dump(contents, json_file, indent=2)
+
+class PhDParser(Parser):
     def __init__(self):
         """ Initialises class with new_projects """
+        super().__init__()  # initialise parent class
         self.hashstrings = set()  # TODO find a way to save this to file and reimport...
         self.projects = []  # AGAIN, save and reimport
         self.recent_new_projects = []
-        self.disciplines = disciplines.disciplines
-    
 
     def genProjects(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> list[dict]:
         """ Parent function. Generates a list of projects from input parameters. Returns and saves internally. 
@@ -25,15 +51,12 @@ class PhDParser():
         self.recent_new_projects = self.parsePhdSoup(all_soup, self.hashstrings, self.projects)
         return self.recent_new_projects
 
-
     def saveRecentAsJson(self, file_path:str="recent.json"):
         """ Saves recent new projects as a .json file with given output path. 
             file_path (str) : path to save projects to. default is "recent.json" in current directory.
         """
         if self.recent_new_projects == []: raise Exception('No recent projects to save!')
-        with open(file_path, 'w') as json_file:
-            json.dump(self.recent_new_projects, json_file, indent=2)
-
+        self.saveAsJson(self.recent_new_projects, file_path=file_path)
 
     def genURL(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> str:
         """ Generates a valid findaPhD url using search keywords. 
@@ -52,15 +75,7 @@ class PhDParser():
         url_parts.append(keywords_str)
         url = '&'.join(url_parts)
         return url
-
-
-    def parseURL(self, url) -> BeautifulSoup:
-        """ Returns 'soup' object from a html page using requests and BeautifulSoup. 
-            url (str) : valid findaPhD url to parse
-            RETURNS BeautifulSoup : BeautifulSoup object used to parse data
-        """
-        return BeautifulSoup(requests.get(url).text, 'lxml')
-
+    
 
     def parsePhdSoup(self, soup:BeautifulSoup, hashstrings:set[str], projects:list[dict]):
         """ Returns list of new PhD projecst using BeautifulSoup data. 
