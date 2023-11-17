@@ -1,6 +1,8 @@
 ---
 name: Parent
 about: A task large enough that it needs to be divided into smaller tasks. It will usually be labeled as `enhancement`.
+labels: enhancement
+assignees: bitesizing
 ---
 
 <!-- Issue title should mirror the Parent Title. -->
