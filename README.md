@@ -1,5 +1,5 @@
-# PhDScraper
-A personal project to scrape and parse PhD projects from [findaphd.com](https://www.findaphd.com/) so that they can be sorted and accessed more easily.
+# FindAPhDParser
+A personal repository to scrape and parse PhD projects from [findaphd.com](https://www.findaphd.com/) so that they can be sorted and accessed more easily.
 
 ## To install
 - Clone the main branch of the project using `https://github.com/bitesizing/PhDScraper.git`
