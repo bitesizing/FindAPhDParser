@@ -3,6 +3,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 import disciplines
+import warnings
 
 class Parser():
     def __init__(self):
@@ -31,6 +32,26 @@ class Parser():
         with open(file_path, 'w') as json_file:
             json.dump(contents, json_file, indent=2)
 
+class DisciplineParser(Parser):
+    """ Parses the 'disciplines' page on findaphd.com to return all discipline url codes. """
+
+    def __init__(self):
+        super().__init__()  # initialise parent class
+        self.url = "https://www.findaphd.com/phds/discipline/"
+        self.soup = self.parseURL(self.url)
+    
+    def scrapeDisciplines(self) -> dict:
+        """ Scrapes discipline page and returns dictionary of disciplines. """
+        discipline_containers = self.soup.find_all(class_="card-title text-dark h4 d-block")
+
+        for discipline_container in discipline_containers:
+            if discipline_container is None: continue
+            title = discipline_container.get_text(strip=True).lower()
+            link_suffix = discipline_container.get('href')
+            if title not in self.disciplines:
+                self.disciplines[title] = link_suffix
+        return self.disciplines
+
 class PhDParser(Parser):
     def __init__(self):
         """ Initialises class with new_projects """
@@ -49,6 +70,8 @@ class PhDParser(Parser):
         url = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)
         all_soup = self.parseURL(url)
         self.recent_new_projects = self.parsePhdSoup(all_soup, self.hashstrings, self.projects)
+        if self.recent_new_projects == []:
+            warnings.warn('There are currently no PhDs listed using your search terms:/ Feel free to try again.')
         return self.recent_new_projects
 
     def saveRecentAsJson(self, file_path:str="recent.json"):
@@ -67,7 +90,7 @@ class PhDParser(Parser):
         """
         if discipline not in self.disciplines: raise KeyError("not a valid subject!")
 
-        url_parts = [f"https://www.findaphd.com/phds/{disciplines[discipline]}"]
+        url_parts = [f"https://www.findaphd.com{self.disciplines[discipline]}"]
         if recent_only: url_parts.append("Show=M")
 
         keywords_str = [item.strip() for item in keywords.split(',')]
