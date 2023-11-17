@@ -1,5 +1,6 @@
 # %% 
 from PhDParser import PhDParser
+import disciplines
 
 # %%
 """ Fill in variables manually """
@@ -14,6 +15,9 @@ json_output_path = "recent.json"    # shouldn't need to change this
 
 # %%
 """ Find matching PhD projects and save to class """
+disciplines = disciplines.disciplines
+if discipline not in disciplines: raise Exception('invalid discipline chosen! See `disciplines.py` for current list of valid disciplines...')
+
 parser = PhDParser()
 parser.genProjects(discipline=discipline, recent_only=recent_only, keywords=keywords)
 

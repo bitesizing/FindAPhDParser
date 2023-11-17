@@ -2,6 +2,7 @@ import lxml
 import requests
 import json
 from bs4 import BeautifulSoup
+import disciplines
 
 class PhDParser():
     def __init__(self):
@@ -9,6 +10,7 @@ class PhDParser():
         self.hashstrings = set()  # TODO find a way to save this to file and reimport...
         self.projects = []  # AGAIN, save and reimport
         self.recent_new_projects = []
+        self.disciplines = disciplines.disciplines
     
 
     def genProjects(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> list[dict]:
@@ -40,12 +42,9 @@ class PhDParser():
             keywords (str) : *comma separated* list of search terms. defaults to no terms
             RETURNS str : valid findaPhD url
         """
-        subjects_dict = {
-            'psychology': "psychology/?10M7-0"
-        }
-        if discipline not in subjects_dict: raise KeyError("not a valid subject!")
+        if discipline not in self.disciplines: raise KeyError("not a valid subject!")
 
-        url_parts = [f"https://www.findaphd.com/phds/{subjects_dict[discipline]}"]
+        url_parts = [f"https://www.findaphd.com/phds/{disciplines[discipline]}"]
         if recent_only: url_parts.append("Show=M")
 
         keywords_str = [item.strip() for item in keywords.split(',')]
