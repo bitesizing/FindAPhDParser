@@ -1,4 +1,4 @@
-# PhDScraper
+# FindAPhDParser
 A personal project to scrape and parse PhD projects from [findaphd.com](https://www.findaphd.com/) so that they can be sorted and accessed more easily.
 
 ## To install
