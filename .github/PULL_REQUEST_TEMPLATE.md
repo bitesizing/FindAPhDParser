@@ -1,3 +1,7 @@
+---
+assignees: bitesizing
+---
+
 ## Associated issues
 - Resolves [Split disciplines](https://github.com/bitesizing/FindAPhdParser/issues/4)
 
