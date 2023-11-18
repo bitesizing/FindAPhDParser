@@ -4,6 +4,7 @@ import json
 from bs4 import BeautifulSoup
 import disciplines
 import warnings
+from datetime import datetime
 
 class Parser():
     def __init__(self):
@@ -128,6 +129,9 @@ class PhDParser(Parser):
             if title in hashstrings: continue  # don't reprocess if already in set
             hashstrings.add(title)  # add to existing hashstrings
 
+            # Time accessed
+            access_time = datetime.now()
+
             # Get information about PhD country from the 'flag' section
             country = container.find(class_="phd-result__dept-inst--country-icon")
             if country is not None:  country = country.get("title")
@@ -153,6 +157,7 @@ class PhDParser(Parser):
                 "title": title,
                 "date_updated": date_updated,
                 "deadline": deadline,
+                "access_time": access_time,
                 "funding": funding,
                 "link": link,
                 "country": country,
