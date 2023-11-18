@@ -1,5 +1,6 @@
 """ File to store discipline dictionary. """
 disciplines = {
+  "": "/phds",
   "agriculture": "/phds/agriculture/?10M720",
   "anthropology": "/phds/anthropology/?10M740",
   "architecture, building & planning": "/phds/architecture-building-and-planning/?10M760",
