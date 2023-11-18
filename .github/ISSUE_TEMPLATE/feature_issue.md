@@ -7,7 +7,7 @@ assignees: bitesizing
 
 <!-- Issue title should mirror the Parent Title. -->
 ## Feature description
-This Feature will...
+This feature will...
 
 ## List of tasks (complete in order)
 - [ ] 
