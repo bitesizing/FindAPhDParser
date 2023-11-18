@@ -72,13 +72,14 @@ class PhDParser(Parser):
             tmp_json = json.load(file)
     all_projects.update(tmp_json)
 
-    def __init__(self, discipline:str="", recent_only:bool=True, keywords:str=""):
+    def __init__(self, search=True, discipline:str="", recent_only:bool=True, keywords:str=""):
         """ Saves results of search to self.current_projects variable.
             discipline (str) : discipline of study to search within. default is "psychology"
             recent_only (bool) : show only recent PhD opportunities. default is True
             keywords (str) : *comma separated* list of search terms. defaults to no terms
         """
         super().__init__()  # initialise parent class
+        if not search: return
 
         # Checks for valid inputs
         discipline = discipline.lower()
