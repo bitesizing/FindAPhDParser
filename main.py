@@ -1,6 +1,5 @@
 # %% 
 from PhDParser import PhDParser, DisciplineParser
-import discipline_dict
 
 # %%
 """ Fill in variables manually """
@@ -11,6 +10,10 @@ keywords = "development"              # keywords should be comma separated
 save_as_json = True                 # whether to save as .json in this file
 json_output_path = "recent.json"    # shouldn't need to change this
 
+# %%
+parser = PhDParser("law")
+parser = PhDParser("psychology", keywords="development")
+parser.saveAllAsJson()
 
 # %%
 """ Find matching PhD projects and save to class """

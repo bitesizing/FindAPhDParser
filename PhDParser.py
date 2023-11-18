@@ -1,4 +1,5 @@
 import lxml
+import os
 import requests
 import json
 from bs4 import BeautifulSoup
@@ -17,6 +18,11 @@ class Parser():
             RETURNS BeautifulSoup : BeautifulSoup object used to parse data
         """
         return BeautifulSoup(requests.get(url).text, 'lxml')
+    
+    def readJson(self, file_path) -> (json):
+        """ Reads .json file and returns it as a variable. """
+        with open(file_path, 'r') as file:
+            return(json.load(file))
 
     def saveAsJson(self, contents:(list[dict]), file_path:str="json"):
         """ Saves list of dictionaries as .json file. 
@@ -58,8 +64,13 @@ class PhDParser(Parser):
     """ Class to handle all (previous and current) searches for PhDs. Each instance handles a single new search. 
         all_projects (defaultdict[dict]) : dict of search terms, storing a dict of project names, each with a dict of saved projects for that search term. 
     """
+    # Load class variables
     discipline_dict = discipline_dict.disciplines
     all_projects = defaultdict(dict)
+    if os.path.exists('all.json'):
+        with open('all.json', 'r') as file:
+            tmp_json = json.load(file)
+    all_projects.update(tmp_json)
 
     def __init__(self, discipline:str="", recent_only:bool=True, keywords:str=""):
         """ Saves results of search to self.current_projects variable.
