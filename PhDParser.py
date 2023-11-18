@@ -60,35 +60,33 @@ class PhDParser(Parser):
     """
     all_projects = defaultdict(dict)
 
-    def __init__(self):
-        """ Initialises class with new_projects """
-        super().__init__()  # initialise parent class
-        self.current_projects = {}
-        self.current_search = self.current_title = None  # assigned to later
-
-    def genProjects(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> list[dict]:
-        """ Parent function. Generates a list of projects from input parameters. Returns and saves internally. 
+    def __init__(self, discipline:str="", recent_only:bool=True, keywords:str=""):
+        """ Saves results of search to self.current_projects variable.
             discipline (str) : discipline of study to search within. default is "psychology"
             recent_only (bool) : show only recent PhD opportunities. default is True
             keywords (str) : *comma separated* list of search terms. defaults to no terms
-            RETURNS list[dict] : list of projects with all project info
         """
-        url = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)
-        all_soup = self.parseURL(url)
-        self.current_projects = self.parsePhdSoup(all_soup)
-        if self.current_projects == []:
-            warnings.warn('There are currently no PhDs listed using your search terms:/ Feel free to try again.')
-        return self.current_projects
+        super().__init__()  # initialise parent class
+        self.url, self.search_string = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)  # generate search url and search string
+        self.soup = self.parseURL(self.url)
+        self.current_projects = self.parsePhdSoup(self.soup)
 
-    def saveRecentAsJson(self, file_path:str="recent.json"):
+        if self.current_projects == {}:
+            warnings.warn('There are currently no PhDs listed using your search terms:/ Feel free to try again with different terms.')
+        
+        # Add current_projects to all_projects, stored under the search string
+        self.all_projects[self.search_string].update(self.current_projects)
+
+    def saveCurrentAsJson(self, file_path:str="recent.json"):
         """ Saves recent new projects as a .json file with given output path. 
             file_path (str) : path to save projects to. default is "recent.json" in current directory.
         """
-        if self.current_projects == []: raise Exception('No recent projects to save!')
+        if self.current_projects == {}: raise Exception('No recent projects to save!')
         self.saveAsJson(self.current_projects, file_path=file_path)
 
+
     # ~~~~~ INTERNAL FUNCTIONS - do not need to be called by user. ~~~~~
-    # ~~~~~
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     def genURL(self, discipline:str="", recent_only:bool=True, keywords:str="") -> str:
         """ Generates a valid findaPhD url using search keywords. 
             discipline (str) : discipline of study to search within. default is "psychology"
@@ -97,18 +95,19 @@ class PhDParser(Parser):
             RETURNS str : valid findaPhD url
         """
         if discipline not in self.disciplines: raise KeyError("not a valid subject!")
+        if discipline == "" and keywords == "": raise ValueError("you must include either a discipline or a keyword to search for PhDs.")
 
-        url_parts = [f"https://www.findaphd.com{self.disciplines[discipline]}"]
-        if recent_only: url_parts.append("Show=M")
+        url_list = [f"https://www.findaphd.com{self.disciplines[discipline]}"]
+        if recent_only: url_list.append("Show=M")
 
-        keywords_str = [item.strip() for item in keywords.split(',')]
-        self.current_search = discipline + (",").join(sorted(keywords_str))  # save hashstring of search term
-        print(f"current_search = {self.current_search}")
+        keywords_list = sorted([item.strip() for item in keywords.split(',')])
+        keywords_str = f"keywords={("+").join(keywords_list)}"
+        url_list.append(keywords_str)
 
-        keywords_str = f"keywords={("+").join(keywords_str)}"
-        url_parts.append(keywords_str)
-        url = '&'.join(url_parts)
-        return url
+        url = '&'.join(url_list)  # combine url, joined with '&'s
+        search_string = f"{discipline}&{keywords_str}"  # save hashstring of search term
+        print(f"search = {search_string}")
+        return url, search_string
 
     def parsePhdSoup(self, soup:BeautifulSoup) -> dict[dict]:
         """ Returns list of new PhD projecst using BeautifulSoup data. 

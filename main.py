@@ -24,4 +24,4 @@ parser.genProjects(discipline=discipline, recent_only=recent_only, keywords=keyw
 
 # %%
 """ Save as .json file """
-if save_as_json: parser.saveRecentAsJson(output_path=json_output_path)
+if save_as_json: parser.saveCurrentAsJson(output_path=json_output_path)
