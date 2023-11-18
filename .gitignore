@@ -2,3 +2,4 @@
 *.json
 tmp.py
 __pychache__
+.vscode
