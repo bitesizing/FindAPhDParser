@@ -4,7 +4,7 @@ import disciplines
 
 # %%
 """ Fill in variables manually """
-discipline = "law"           # discipline (subject) to search within
+discipline = ""           # discipline (subject) to search within
 recent_only = True                  # whether to only show recent projects
 keywords = ""              # keywords should be comma separated
 
