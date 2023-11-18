@@ -98,7 +98,6 @@ class PhDParser(Parser):
         url_parts.append(keywords_str)
         url = '&'.join(url_parts)
         return url
-    
 
     def parsePhdSoup(self, soup:BeautifulSoup, hashstrings:set[str], projects:list[dict]):
         """ Returns list of new PhD projecst using BeautifulSoup data. 
@@ -121,17 +120,24 @@ class PhDParser(Parser):
             hashstrings.add(title)  # add to existing hashstrings
 
             # Get information about PhD country from the 'flag' section
-            country = container.find(class_="country-flag img-responsive phd-result__dept-inst--country-icon").get("title")
+            country = container.find(class_="phd-result__dept-inst--country-icon")
+            if country is not None:  country = country.get("title")
 
             # Get university name
-            university = container.find(class_="phd-result__dept-inst--title").text.replace('\n', '')
+            university = container.find(class_="phd-result__dept-inst--title")
+            if university is not None: university = university.get_text(strip=True)
             
-            # Get date of last update and deadline date
-            date_updated = container.find(class_="apply py-2 small").get_text(strip=True)[8:]
-            deadline = container.find(class_="hoverTitle subButton badge text-wrap badge-light card-badge p-2 m-1 font-weight-light").get_text(strip=True)
+            # Get date of last update
+            date_updated = container.find(class_="apply py-2 small")
+            if date_updated is not None: date_updated = date_updated.get_text(strip=True)[8:]
+
+            # Get deadline date
+            deadline = container.find(class_="fa-calendar")
+            if deadline is not None: deadline = deadline.parent.get_text(strip=True)
 
             # Get funding information
-            funding = container.find_all(class_="hoverTitle subButton text-wrap badge badge-light card-badge p-2 m-1 font-weight-light")[1].get_text(strip=True)
+            funding = container.find(class_="fa-wallet")
+            if funding is not None: funding = funding.parent.get_text(strip=True)
 
             # Append to list and return
             new_projects.append({
