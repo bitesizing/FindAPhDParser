@@ -70,7 +70,7 @@ class PhDParser(Parser):
     if os.path.exists('all.json'):
         with open('all.json', 'r') as file:
             tmp_json = json.load(file)
-    all_projects.update(tmp_json)
+        all_projects.update(tmp_json)
 
     def __init__(self, search=True, discipline:str="", recent_only:bool=True, keywords:str=""):
         """ Saves results of search to self.current_projects variable.
@@ -87,6 +87,7 @@ class PhDParser(Parser):
 
         # Generate url and use it to obtain and parse HTML soup
         self.url, self.search_string = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)  # generate search url and search string
+        print(f"search = '{self.search_string}'")
         self.soup = self.parseURL(self.url)
         self.current_projects = self.parsePhdSoup(self.soup)  # parse soup data
 
@@ -130,7 +131,6 @@ class PhDParser(Parser):
 
         url = '&'.join(url_list)  # combine url, joined with '&'s
         search_string = f"{discipline}&{keywords_str}"  # save hashstring of search term
-        print(f"search = {search_string}")
         return url, search_string
 
     def parsePhdSoup(self, soup:BeautifulSoup) -> dict[dict]:
