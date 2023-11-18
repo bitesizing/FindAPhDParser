@@ -53,12 +53,15 @@ class DisciplineParser(Parser):
         return self.disciplines
 
 class PhDParser(Parser):
+    """ Main parser to Parse for PhD projects with a given search term. """
     def __init__(self):
         """ Initialises class with new_projects """
         super().__init__()  # initialise parent class
         self.hashstrings = set()  # TODO find a way to save this to file and reimport...
         self.projects = []  # AGAIN, save and reimport
-        self.recent_new_projects = []
+
+        self.recent_hashstring = ""
+        self.recent_projects = []
 
     def genProjects(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> list[dict]:
         """ Parent function. Generates a list of projects from input parameters. Returns and saves internally. 
@@ -69,19 +72,22 @@ class PhDParser(Parser):
         """
         url = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)
         all_soup = self.parseURL(url)
-        self.recent_new_projects = self.parsePhdSoup(all_soup, self.hashstrings, self.projects)
-        if self.recent_new_projects == []:
+        self.recent_projects = self.parsePhdSoup(all_soup, self.hashstrings, self.projects)
+        if self.recent_projects == []:
             warnings.warn('There are currently no PhDs listed using your search terms:/ Feel free to try again.')
-        return self.recent_new_projects
+        return self.recent_projects
 
     def saveRecentAsJson(self, file_path:str="recent.json"):
         """ Saves recent new projects as a .json file with given output path. 
             file_path (str) : path to save projects to. default is "recent.json" in current directory.
         """
-        if self.recent_new_projects == []: raise Exception('No recent projects to save!')
-        self.saveAsJson(self.recent_new_projects, file_path=file_path)
+        if self.recent_projects == []: raise Exception('No recent projects to save!')
+        self.saveAsJson(self.recent_projects, file_path=file_path)
 
-    def genURL(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> str:
+
+    # ~~~~~ INTERNAL FUNCTIONS - do not need to be called by user. ~~~~~
+    # ~~~~~
+    def genURL(self, discipline:str="", recent_only:bool=True, keywords:str="") -> str:
         """ Generates a valid findaPhD url using search keywords. 
             discipline (str) : discipline of study to search within. default is "psychology"
             recent_only (bool) : show only recent PhD opportunities. default is True
@@ -94,12 +100,14 @@ class PhDParser(Parser):
         if recent_only: url_parts.append("Show=M")
 
         keywords_str = [item.strip() for item in keywords.split(',')]
+        self.recent_hashstring = discipline + (",").join(sorted(keywords_str))  # save hashstring of search term
+        print(self.recent_hashstring)
+
         keywords_str = f"keywords={("+").join(keywords_str)}"
         url_parts.append(keywords_str)
         url = '&'.join(url_parts)
         return url
     
-
     def parsePhdSoup(self, soup:BeautifulSoup, hashstrings:set[str], projects:list[dict]):
         """ Returns list of new PhD projecst using BeautifulSoup data. 
             soup (BeautifulSoup) : BeautifulSoup data for a findaPhD search page

@@ -6,7 +6,7 @@ import disciplines
 """ Fill in variables manually """
 discipline = "law"           # discipline (subject) to search within
 recent_only = True                  # whether to only show recent projects
-keywords = "hkfhjkdshkj"              # keywords should be comma separated
+keywords = ""              # keywords should be comma separated
 
 save_as_json = False                 # whether to save as .json in this file
 json_output_path = "recent.json"    # shouldn't need to change this
