@@ -1,7 +1,7 @@
 ---
 name: Bug report
 labels: bug
-about: Create a report to help us improve
+about: Report a bug to allow future fixes. If you want to propose a fix to an existing bug, use bugfix. 
 ---
 
 <!-- Please search existing issues to avoid creating duplicates. -->
