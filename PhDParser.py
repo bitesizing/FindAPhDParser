@@ -64,8 +64,7 @@ class PhDParser(Parser):
         """ Initialises class with new_projects """
         super().__init__()  # initialise parent class
         self.current_projects = {}
-        self.search_term = None  # assigned to in genProjects
-        self.recent_hashstring = ""
+        self.current_search = self.current_title = None  # assigned to later
 
     def genProjects(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> list[dict]:
         """ Parent function. Generates a list of projects from input parameters. Returns and saves internally. 
@@ -103,8 +102,8 @@ class PhDParser(Parser):
         if recent_only: url_parts.append("Show=M")
 
         keywords_str = [item.strip() for item in keywords.split(',')]
-        self.recent_hashstring = discipline + (",").join(sorted(keywords_str))  # save hashstring of search term
-        print(self.recent_hashstring)
+        self.current_search = discipline + (",").join(sorted(keywords_str))  # save hashstring of search term
+        print(f"current_search = {self.current_search}")
 
         keywords_str = f"keywords={("+").join(keywords_str)}"
         url_parts.append(keywords_str)
@@ -116,7 +115,7 @@ class PhDParser(Parser):
             soup (BeautifulSoup) : BeautifulSoup data for a findaPhD search page
             RETURNS dict[dict] of project traits, stored under project names
         """
-        new_projects = {}
+        current_projects = {}
         phd_containers = soup.find_all(class_="w-100 card shadow-sm p-4")
 
         # Extra data from each project title individually.
@@ -127,8 +126,7 @@ class PhDParser(Parser):
             title = title_container.text  # generate title
 
             # Process hashstring
-            if title in hashstrings: continue  # don't reprocess if already in set
-            hashstrings.add(title)  # add to existing hashstrings
+            if title in self.all_projects[self.current_search]: continue  # don't reprocess if already in set
 
             # Time accessed
             access_time = datetime.now()
@@ -154,7 +152,7 @@ class PhDParser(Parser):
             if funding is not None: funding = funding.parent.get_text(strip=True)
 
             # Append to list and return
-            new_projects.append({
+            current_projects[title] = {
                 "title": title,
                 "date_updated": date_updated,
                 "deadline": deadline,
@@ -163,8 +161,8 @@ class PhDParser(Parser):
                 "link": link,
                 "country": country,
                 "university": university
-            })
-        return new_projects
+            }
+        return current_projects
 
 
 
