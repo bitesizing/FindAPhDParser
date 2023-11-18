@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import disciplines
 import warnings
 from datetime import datetime
+from collections import defaultdict
 
 class Parser():
     def __init__(self):
@@ -54,15 +55,17 @@ class DisciplineParser(Parser):
         return self.disciplines
 
 class PhDParser(Parser):
-    """ Main parser to Parse for PhD projects with a given search term. """
+    """ Class to handle all (previous and current) searches for PhDs. Each instance handles a single new search. 
+        all_projects (defaultdict[dict]) : dict of search terms, storing a dict of project names, each with a dict of saved projects for that search term. 
+    """
+    all_projects = defaultdict(dict)
+
     def __init__(self):
         """ Initialises class with new_projects """
         super().__init__()  # initialise parent class
-        self.hashstrings = set()  # TODO find a way to save this to file and reimport...
-        self.projects = []  # AGAIN, save and reimport
-
+        self.current_projects = {}
+        self.search_term = None  # assigned to in genProjects
         self.recent_hashstring = ""
-        self.recent_projects = []
 
     def genProjects(self, discipline:str="psychology", recent_only:bool=True, keywords:str="") -> list[dict]:
         """ Parent function. Generates a list of projects from input parameters. Returns and saves internally. 
@@ -73,18 +76,17 @@ class PhDParser(Parser):
         """
         url = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)
         all_soup = self.parseURL(url)
-        self.recent_projects = self.parsePhdSoup(all_soup, self.hashstrings, self.projects)
-        if self.recent_projects == []:
+        self.current_projects = self.parsePhdSoup(all_soup)
+        if self.current_projects == []:
             warnings.warn('There are currently no PhDs listed using your search terms:/ Feel free to try again.')
-        return self.recent_projects
+        return self.current_projects
 
     def saveRecentAsJson(self, file_path:str="recent.json"):
         """ Saves recent new projects as a .json file with given output path. 
             file_path (str) : path to save projects to. default is "recent.json" in current directory.
         """
-        if self.recent_projects == []: raise Exception('No recent projects to save!')
-        self.saveAsJson(self.recent_projects, file_path=file_path)
-
+        if self.current_projects == []: raise Exception('No recent projects to save!')
+        self.saveAsJson(self.current_projects, file_path=file_path)
 
     # ~~~~~ INTERNAL FUNCTIONS - do not need to be called by user. ~~~~~
     # ~~~~~
@@ -109,13 +111,12 @@ class PhDParser(Parser):
         url = '&'.join(url_parts)
         return url
 
-    def parsePhdSoup(self, soup:BeautifulSoup, hashstrings:set[str], projects:list[dict]):
+    def parsePhdSoup(self, soup:BeautifulSoup) -> dict[dict]:
         """ Returns list of new PhD projecst using BeautifulSoup data. 
             soup (BeautifulSoup) : BeautifulSoup data for a findaPhD search page
-            hashstrings (set[str]) : set of previous PhD titles. separates new from old titles
-            projects (list[dict]) : list of previous projects. currently unused
+            RETURNS dict[dict] of project traits, stored under project names
         """
-        new_projects = []
+        new_projects = {}
         phd_containers = soup.find_all(class_="w-100 card shadow-sm p-4")
 
         # Extra data from each project title individually.
