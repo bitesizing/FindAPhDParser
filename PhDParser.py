@@ -84,6 +84,11 @@ class PhDParser(Parser):
         if self.current_projects == {}: raise Exception('No recent projects to save!')
         self.saveAsJson(self.current_projects, file_path=file_path)
 
+    def saveAllAsJson(self, file_path:str="all.json"):
+        """ Saves all projects as a .json file with given output path. 
+            file_path (str) : path to save projects to. default is "recent.json" in current directory.
+        """
+        self.saveAsJson(self.all_projects, file_path=file_path)
 
     # ~~~~~ INTERNAL FUNCTIONS - do not need to be called by user. ~~~~~
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -128,7 +133,7 @@ class PhDParser(Parser):
             if title in self.all_projects[self.search_string]: continue  # don't reprocess if already in set
 
             # Time accessed
-            access_time = datetime.now()
+            access_time = datetime.now().isoformat()  # convert datetime to string
 
             # Get information about PhD country from the 'flag' section
             country = container.find(class_="phd-result__dept-inst--country-icon")
