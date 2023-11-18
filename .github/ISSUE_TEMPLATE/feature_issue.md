@@ -1,6 +1,6 @@
 ---
 name: Feature
-about: An issue used to request or outline a new feature. Will be associated with a separate branch.
+about: An issue used to request or outline a new feature. Will typically be associated with a separate branch.
 labels: enhancement
 assignees: bitesizing
 ---
