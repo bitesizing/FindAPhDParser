@@ -14,10 +14,6 @@ json_output_path = "recent.json"    # shouldn't need to change this
 
 # %%
 """ Find matching PhD projects and save to class """
-disciplines = discipline_dict.disciplines
-discipline = discipline.lower()
-if discipline not in disciplines: raise Exception('invalid discipline chosen! See `disciplines.py` for current list of valid disciplines...')
-
 parser = PhDParser(discipline=discipline, recent_only=recent_only, keywords=keywords)
 
 

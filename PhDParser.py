@@ -58,6 +58,7 @@ class PhDParser(Parser):
     """ Class to handle all (previous and current) searches for PhDs. Each instance handles a single new search. 
         all_projects (defaultdict[dict]) : dict of search terms, storing a dict of project names, each with a dict of saved projects for that search term. 
     """
+    discipline_dict = discipline_dict.disciplines
     all_projects = defaultdict(dict)
 
     def __init__(self, discipline:str="", recent_only:bool=True, keywords:str=""):
@@ -67,9 +68,15 @@ class PhDParser(Parser):
             keywords (str) : *comma separated* list of search terms. defaults to no terms
         """
         super().__init__()  # initialise parent class
+
+        # Checks for valid inputs
+        discipline = discipline.lower()
+        if discipline not in self.discipline_dict: raise Exception('invalid discipline chosen! See `disciplines.py` for current list of valid disciplines...')
+
+        # Generate url and use it to obtain and parse HTML soup
         self.url, self.search_string = self.genURL(discipline=discipline, recent_only=recent_only, keywords=keywords)  # generate search url and search string
         self.soup = self.parseURL(self.url)
-        self.current_projects = self.parsePhdSoup(self.soup)
+        self.current_projects = self.parsePhdSoup(self.soup)  # parse soup data
 
         if self.current_projects == {}:
             warnings.warn('There are currently no PhDs listed using your search terms:/ Feel free to try again with different terms.')
