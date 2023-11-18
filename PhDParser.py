@@ -2,14 +2,14 @@ import lxml
 import requests
 import json
 from bs4 import BeautifulSoup
-import disciplines
+import discipline_dict
 import warnings
 from datetime import datetime
 from collections import defaultdict
 
 class Parser():
     def __init__(self):
-        self.disciplines = disciplines.disciplines
+        self.disciplines = discipline_dict.disciplines
 
     def parseURL(self, url) -> BeautifulSoup:
         """ Returns 'soup' object from a html page using requests and BeautifulSoup. 
@@ -101,8 +101,8 @@ class PhDParser(Parser):
         if recent_only: url_list.append("Show=M")
 
         keywords_list = sorted([item.strip() for item in keywords.split(',')])
-        keywords_str = f"keywords={("+").join(keywords_list)}"
-        url_list.append(keywords_str)
+        keywords_str = ("+").join(keywords_list)
+        url_list.append(f"keywords={keywords_str}")
 
         url = '&'.join(url_list)  # combine url, joined with '&'s
         search_string = f"{discipline}&{keywords_str}"  # save hashstring of search term
@@ -125,7 +125,7 @@ class PhDParser(Parser):
             title = title_container.text  # generate title
 
             # Process hashstring
-            if title in self.all_projects[self.current_search]: continue  # don't reprocess if already in set
+            if title in self.all_projects[self.search_string]: continue  # don't reprocess if already in set
 
             # Time accessed
             access_time = datetime.now()

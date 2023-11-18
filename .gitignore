@@ -1,5 +1,5 @@
 .venv
 *.json
 tmp.py
-__pychache__
+__pychache__/
 .vscode
